@@ -1,0 +1,92 @@
+---
+version: '3.7'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.2.1
+    hostname: zookeeper
+    container_name: zookeeper-with-jmx
+    networks:
+      - local
+    ports:
+      - "2181:2181"
+      - "10992:10992"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_JMX_PORT: 10992
+      KAFKA_JMX_HOSTNAME: zookeeper
+
+  broker:
+    image: confluentinc/cp-enterprise-kafka:5.2.1
+    hostname: broker
+    container_name: broker-with-jmx
+    networks:
+      - local
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "10991:10991"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181/jmx'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      KAFKA_JMX_PORT: 10991
+      KAFKA_JMX_HOSTNAME: broker
+
+  broker-jmx:
+    build: ../
+    image: flaconi-prometheus-jmx-exporter
+    hostname: broker-jmx
+    container_name: broker-jmx-exporter
+    networks:
+      - local
+    depends_on:
+      - broker
+    ports:
+      - "91:10990"
+    environment:
+      JMX_HOST: broker
+      JMX_PORT: 10991
+      JMX_RULES: >
+        - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+), (.+)=(.+)><>Count
+          name: kafka_$$1_$$2_$$3_total
+          type: COUNTER
+          labels:
+            "$$4": "$$5"
+            "$$6": "$$7"
+
+  zookeeper-jmx:
+    image: flaconi-prometheus-jmx-exporter
+    hostname: zookeeper-jmx
+    container_name: zookeeper-jmx-exporter
+    networks:
+      - local
+    depends_on:
+      - zookeeper
+    ports:
+      - "92:10990"
+    environment:
+      JMX_HOST: zookeeper
+      JMX_PORT: 10992
+      JMX_RULES: >
+        - pattern: org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+)><>(\\w+)
+          name: zookeeper_$$2
+        - pattern: org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\d+)><>(\\w+)
+          name: zookeeper_$$3
+          labels:
+            replicaId: $$2
+
+networks:
+  local:
+    name: kafka-jmx-example

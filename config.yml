@@ -1,0 +1,7 @@
+---
+jmxUrl: service:jmx:rmi:///jndi/rmi://{{ .Env.JMX_HOST }}:{{ .Env.JMX_PORT }}/jmxrmi
+username: {{ env.Getenv "JMX_USERNAME" }}
+password: {{ env.Getenv "JMX_PASSWORD" }}
+
+rules:
+{{ .Env.JMX_RULES }}
