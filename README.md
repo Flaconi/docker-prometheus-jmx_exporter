@@ -102,3 +102,9 @@ There is only one process running inside the container and it runs as the
 unprivileged `nobody` user.
 
 [1]: https://github.com/prometheus/jmx_exporter
+
+## License
+
+[MIT](LICENSE)
+
+Copyright (c) 2019 [Flaconi GmbH](https://github.com/Flaconi)
