@@ -1,0 +1,42 @@
+---
+
+sudo: required
+services:
+  - docker
+
+
+env:
+  global:
+    - image=flaconi/prometheus-jmx-exporter
+
+install:
+  # Get newer docker version
+  - max=100; i=0; while [ $i -lt $max ]; do if sudo apt-get update; then break; else i=$((i+1)); fi done
+  - max=100; i=0; while [ $i -lt $max ]; do if sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce; then break; else i=$((i+1)); fi done
+  - docker version
+
+
+###
+### Build Docker image
+###
+before_script:
+  - docker build -t "${image}" .
+
+
+###
+### Push Docker image
+###
+script:
+  - if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+      echo "${DOCKERHUB_PASSWORD}" | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin &&
+      if [ "${TRAVIS_BRANCH}" == "master" ]; then
+        docker push "${image}:latest";
+      elif [ -n "${TRAVIS_TAG}" ]; then
+        docker tag "${image}:latest" "${image}:${TRAVIS_TAG}";
+        docker push "${image}:${TRAVIS_TAG}";
+      else
+        echo "Builds resulting from normal branches are not pushed to Docker Hub.";
+      fi
+    else
+      echo "Builds resulting from PRs are not pushed to Docker Hub.";
+    fi
