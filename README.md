@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/Flaconi/docker-prometheus-jmx_exporter.svg?token=u5XkUbtHSfuz6bo67Qgs&branch=master)](https://travis-ci.com/Flaconi/docker-prometheus-jmx_exporter)
+[![Docker Pulls](https://img.shields.io/docker/pulls/flaconi/prometheus-jmx-exporter.svg)](https://hub.docker.com/r/flaconi/prometheus-jmx-exporter)
+
 # Docker image for JMX Prometheus exporter
 
        +---------+
