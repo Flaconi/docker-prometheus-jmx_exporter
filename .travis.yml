@@ -23,7 +23,10 @@ script:
         make push;
       elif [ -n "${TRAVIS_TAG}" ]; then
         make tag NEW_TAG="${TRAVIS_TAG}";
-        make push TAG="${TRAVIS_TAG}"
+        make push TAG="${TRAVIS_TAG}";
+      elif [[ ${TRAVIS_BRANCH} =~ ^(OPS-[0-9]+)$ ]]; then
+        make tag NEW_TAG="${TRAVIS_BRANCH}";
+        make push TAG="${TRAVIS_BRANCH}";
       else
         echo "Builds resulting from normal branches are not pushed to Docker Hub.";
       fi
