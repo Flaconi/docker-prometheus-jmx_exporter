@@ -1,26 +1,16 @@
 ---
 
 sudo: required
+language: minimal
 services:
   - docker
-
-
-env:
-  global:
-    - image=flaconi/prometheus-jmx-exporter
-
-install:
-  # Get newer docker version
-  - max=100; i=0; while [ $i -lt $max ]; do if sudo apt-get update; then break; else i=$((i+1)); fi done
-  - max=100; i=0; while [ $i -lt $max ]; do if sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce; then break; else i=$((i+1)); fi done
-  - docker version
 
 
 ###
 ### Build Docker image
 ###
 before_script:
-  - docker build -t "${image}" .
+  - make build
 
 
 ###
@@ -28,12 +18,15 @@ before_script:
 ###
 script:
   - if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
-      echo "${DOCKERHUB_PASSWORD}" | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin &&
+      make login USER="${DOCKERHUB_USERNAME}"  PASS="${DOCKERHUB_PASSWORD}";
       if [ "${TRAVIS_BRANCH}" == "master" ]; then
-        docker push "${image}:latest";
+        make push;
       elif [ -n "${TRAVIS_TAG}" ]; then
-        docker tag "${image}:latest" "${image}:${TRAVIS_TAG}";
-        docker push "${image}:${TRAVIS_TAG}";
+        make tag NEW_TAG="${TRAVIS_TAG}";
+        make push TAG="${TRAVIS_TAG}";
+      elif [[ ${TRAVIS_BRANCH} =~ ^(OPS-[0-9]+)$ ]]; then
+        make tag NEW_TAG="${TRAVIS_BRANCH}";
+        make push TAG="${TRAVIS_BRANCH}";
       else
         echo "Builds resulting from normal branches are not pushed to Docker Hub.";
       fi
