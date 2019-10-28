@@ -7,10 +7,26 @@ services:
 
 
 ###
+### Install requirements
+###
+install:
+  - retry() {
+      for ((n=0; n<50; n++)); do
+        echo "[${n}] ${*}";
+        if eval "${*}"; then
+          return 0;
+        fi;
+      done;
+      return 1;
+    }
+
+
+###
 ### Build Docker image
 ###
 before_script:
-  - make build
+  - retry make build
+  - retry make test
 
 
 ###
