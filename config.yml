@@ -2,6 +2,11 @@
 jmxUrl: service:jmx:rmi:///jndi/rmi://{{ .Env.JMX_HOST }}:{{ .Env.JMX_PORT }}/jmxrmi
 username: {{ env.Getenv "JMX_USERNAME" }}
 password: {{ env.Getenv "JMX_PASSWORD" }}
+lowercaseOutputName: {{ env.Getenv "JMX_LOWERCASEOUTPUTNAME" }}
+lowercaseOutputLabelNames: {{ env.Getenv "JMX_LOWERCASEOUTPUTLABELNAMES" }}
+attrNameSnakeCase: {{ env.Getenv "JMX_ATTRNAMESNAKECASE" }}
+type: {{ env.Getenv "JMX_TYPE" }}
+startDelaySeconds: {{ env.Getenv "JMX_STARTDELAYSECONDS" }}
 
 rules:
 {{ .Env.JMX_RULES }}

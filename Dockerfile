@@ -51,6 +51,12 @@ ENV JMX_RULES=""
 
 ENV EXPORTER_PORT=10990
 
+ENV JMX_LOWERCASEOUTPUTNAME="false"
+ENV JMX_LOWERCASEOUTPUTLABELNAMES="false"
+ENV JMX_ATTRNAMESNAKECASE="false"
+ENV JMX_TYPE="UNTYPED"
+ENV JMX_STARTDELAYSECONDS=0
+
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends --no-install-suggests wget; \
