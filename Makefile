@@ -11,24 +11,29 @@ FILE = Dockerfile
 IMAGE = flaconi/prometheus-jmx-exporter
 TAG = latest
 
+ARG_GOMPLATE_VERSION = v3.3.1
+
+
 help:
 	@echo "build       Build the image (TAG is optional)"
 	@echo "rebuild     Rebuild the image without cache (TAG is optional)"
 	@echo "test        Test the image"
 
 build:
-	docker build -t $(IMAGE):$(TAG) -f $(DIR)/$(FILE) $(DIR)
+	docker build --build-arg GOMPLATE_VERSION=$(ARG_GOMPLATE_VERSION) -t $(IMAGE):$(TAG) -f $(DIR)/$(FILE) $(DIR)
 
 rebuild: pull
-	docker build --no-cache -t $(IMAGE):$(TAG) -f $(DIR)/$(FILE) $(DIR)
+	docker build --build-arg GOMPLATE_VERSION=$(ARG_GOMPLATE_VERSION) --no-cache -t $(IMAGE):$(TAG) -f $(DIR)/$(FILE) $(DIR)
+
 
 test:
 	echo "Not yet implemented"
 
 pull:
 	@grep -E '^\s*FROM' Dockerfile \
-		| sed -e 's/^FROM//g' -e 's/[[:space:]]*as[[:space:]]*.*$$//g' \
-		| xargs -n1 docker pull;
+		| sed -e 's/^FROM//g' -e 's/[[:space:]][[:space:]]*as[[:space:]][[:space:]]*.*$$//g' \
+		| sed -e 's/$${GOMPLATE_VERSION}/$(ARG_GOMPLATE_VERSION)/g' \
+		| xargs -n1 docker pull
 
 login:
 	yes | docker login --username $(USER) --password $(PASS)
