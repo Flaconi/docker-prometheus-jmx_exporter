@@ -11,7 +11,7 @@ FILE = Dockerfile
 IMAGE = flaconi/prometheus-jmx-exporter
 TAG = latest
 
-ARG_GOMPLATE_VERSION = v3.3.1
+ARG_GOMPLATE_VERSION = v3.10.0
 
 
 help:

@@ -1,10 +1,10 @@
-ARG GOMPLATE_VERSION=v3.3.1
+ARG GOMPLATE_VERSION=v3.10.0
 FROM hairyhenderson/gomplate:${GOMPLATE_VERSION}-slim as gomplate
 
 # Until we have a base image containing "gosu", we install it following
 # https://github.com/tianon/gosu/blob/master/INSTALL.md
 FROM debian:stretch-slim as gosu
-ARG GOSU_VERSION=1.11
+ARG GOSU_VERSION=1.14
 RUN set -eux; \
     # save list of currently installed packages for later so we can clean up
     savedAptMark="$(apt-mark showmanual)"; \
@@ -22,7 +22,7 @@ RUN set -eux; \
     # verify the signature
     export GNUPGHOME="$(mktemp -d)"; \
     # for flaky keyservers, consider https://github.com/tianon/pgp-happy-eyeballs, ala https://github.com/docker-library/php/pull/666
-    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --batch --keyserver keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
     gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
     command -v gpgconf && gpgconf --kill all || :; \
     rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
