@@ -40,7 +40,7 @@ RUN set -eux; \
 FROM flaconi/java-base:stretch-slim-openjdk-java8
 LABEL maintainer="devops@flaconi.de"
 
-ARG JMX_EXPORTER_VERSION=0.11.0
+ARG JMX_EXPORTER_VERSION=0.16.1
 ENV JMX_EXPORTER_JAR=jmx_prometheus_httpserver-${JMX_EXPORTER_VERSION}-jar-with-dependencies.jar
 
 ENV JMX_HOST=localhost
